@@ -1,12 +1,17 @@
 require(MCMCpack)
 
+## source other functions files
+setwd("D:\\Project\\changepoint")
+#myFun <- lapply(list.files(path="D:\\Project\\changepoint", pattern = ".R"), source)
+source("objfuns.R")
+
 ####################################
 ########### Initialization #########
 ####################################
 
 K = 5               # category number
 rows = 1            # samples
-changepoint.num = 0 # changepoint number per row 
+changepoint.num = 1 # changepoint number per row 
 #(right now, all the rows has the same changepoint number and position)
 paramsnum = K*(changepoint.num+1) 
 SampleN = 100       # how many points per section have
@@ -46,7 +51,7 @@ for(i in 1:rows){
     # Multinomial distribution
     data.n[i,] = t(rmultinom(1, size = rowN, prob = theta.true[i,]))
     
-    #sampling to generate the data  -- for illustrate purpose
+    #sampling to generate the data
     seeds = rep.int(rep.int(1:K,changepoint.num+1),sapply(data.n[i,],rep))
     for(j in 1:(changepoint.num+1)){
         start = SampleN*(j-1)+1 # beginning of jth changepoint sample
@@ -71,21 +76,6 @@ for(i in 1:rows){
 ########################################################
 ########### optim method to estimate alpha #########
 ########################################################
-# define the function to be optimized
-loglikelihood <- function(par,data.n){
-    idx = which(data.n>0)
-    lgamma(sum(par)) - lgamma(sum(par + data.n)) + 
-        sum(lgamma(par[idx] + data.n[idx]) + lgamma(par[idx])) +
-        log10(prod(sum(data.n))) + sum(log10(prod(data.n[idx])))
-}
-
-gradient <- function(par,data.n){ ##Gradient of loglikelihood
-    idx = which(data.n>0)
-    gdt = unlist(matrix(0,1,length(par)))
-    gdt[idx] = digamma(sum(par)) - digamma(sum(par + data.n)) + 
-        digamma(par[idx] + data.n[idx]) - digamma(par[idx])
-    gdt
-}
 
 # initialize the estimated alpha by random value first
 alpha.estimate = unlist(matrix(runif(rows*paramsnum,0.1,1),rows,paramsnum))
@@ -117,10 +107,13 @@ for(i in 1:rows){
 alpha.alpha = vector("list",rowN)
 alpha.beta = vector("list",rowN)
 
-for(lambda in 1:rowN-1){
-    alpha = unlist(matrix(runif(paramsnum,0.1,1),1,paramsnum))
-    beta = unlist(matrix(runif(paramsnum,0.1,1),1,paramsnum))
-    
-    
-}
 
+para = vector("list",3)
+names(para) = c("p0","alpha","beta")
+
+for(i in 1:rows){
+    para$p0 = runif(1,0.1,1)
+    para$alpha = unlist(matrix(runif(K,0.1,1),1,K))
+    para$beta = unlist(matrix(runif(K,0.1,1),1,K))
+    res = optim(para,argmax,K=K,method="Nelder-Mead")
+}
