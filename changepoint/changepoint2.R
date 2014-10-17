@@ -106,14 +106,15 @@ for(i in 1:rows){
 ###############################################################
 alpha.alpha = vector("list",rowN)
 alpha.beta = vector("list",rowN)
-
-
-para = vector("list",3)
-names(para) = c("p0","alpha","beta")
+# 
+# 
+# para = vector("list",3)
+# names(para) = c("p0","alpha","beta")
 
 for(i in 1:rows){
-    para$p0 = runif(1,0.1,1)
-    para$alpha = unlist(matrix(runif(K,0.1,1),1,K))
-    para$beta = unlist(matrix(runif(K,0.1,1),1,K))
-    res = optim(para,argmax,K=K,method="Nelder-Mead")
+#     para$p0 = runif(1,0.1,1)
+#     para$alpha = unlist(matrix(runif(K,0.1,1),1,K))
+#     para$beta = unlist(matrix(runif(K,0.1,1),1,K))
+    para = c(runif(1,0.1,1),unlist(matrix(runif(K,0.1,1),1,K)),unlist(matrix(runif(K,0.1,1),1,K)))
+    res = optim(para,argmax,data=data,K=K,method="Nelder-Mead")
 }

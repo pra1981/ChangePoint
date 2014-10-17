@@ -27,16 +27,16 @@ argmax <- function(par,data,...){
     logPr = matrix(0,1,N)
     
     ## lamdba = 0 : no change point
-    logP0 = log10(1- par$p0)
-    logP.alpha = loglikelihood(par$alpha,data.n$alpha)
+    logP0 = log10(1- par[1])
+    logP.alpha = loglikelihood(par[2:K+1],data.n$alpha)
     logPr[1] = logP0 + logP.alpha
     
     ## lambda > 0 : change point position
     for(lambda in 1:N-1){
         data.n = getDataFreq(data,lambda)
-        logP0 = log10(par$p0/N-1)
-        logP.alpha = loglikelihood(par$alpha,data.n$alpha)
-        logP.beta = loglikelihood(par$beta,data.n$beat)
+        logP0 = log10(par[1]/(N-1))
+        logP.alpha = loglikelihood(par[2:(K+1)],data.n$alpha)
+        logP.beta = loglikelihood(par[(K+2):(2*K+1)],data.n$beta)
         logPr[lambda+1] = logP0 + logP.alpha + logP.beta
     }
     logPmax = max(logPr)
